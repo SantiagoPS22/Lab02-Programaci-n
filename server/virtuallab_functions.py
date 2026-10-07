@@ -93,10 +93,13 @@ def openSession(id,password):
 # Si la sesión se pudo cerrar debe retornar "Session was succesfully closed" de lo contrario
 # debe retornar "error"
 def closeSession(id):
-    response=f"closeSession called by user {id}"
+    if id in ACTIVE_SESSIONS:
+        del ACTIVE_SESSIONS[id]
+        response = "Session was succesfully closed"
+    else:
+        response = "error"
     print(response)
     return response
-
 
 # Función para recibir una práctica de laboratorio (archivo zip) de un profesor
 # Recibe una práctica de laboratorio si el usuario es un profesor y se encuentra con sesión abierta
