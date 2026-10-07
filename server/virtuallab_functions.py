@@ -6,7 +6,7 @@
 import os
 from json import dumps # Convertir diccionario a JSON
 from json import loads # Convertir JSON a diccionario
-
+ACTIVE_SESSIONS = {}
 usersFile = "server/users.txt"
 
 def writeUserDataToFile(user_data):
@@ -62,7 +62,29 @@ def registerUser(name,id,role,password):
 # Si la sesión se pudo abrir debe retornar "Session was succesfully opened" de lo contrario
 # debe retornar "error"
 def openSession(id,password):
-    response=f"openSession called by user {id}"
+    try:
+        file=open(usersFile, "r")        
+    
+    except FileNotFoundError:
+        #Archivo no existe
+        print("File not found")
+
+    else:
+        response = None
+        with file:
+            lines=file.readlines()
+            for line in lines:
+                user=loads(line)
+                if user["id"]==id and user["password"] == password:
+                    ACTIVE_SESSIONS[id] = {
+                        "name": user.get("name"),
+                        "role": user.get("role")
+                    }
+                    response=f"openSession called by user {id}"
+                    break
+        if response is None:
+            response = "Unable to log in; user details are incorrect."
+
     print(response)
     return response
 
