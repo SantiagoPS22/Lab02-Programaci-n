@@ -156,10 +156,24 @@ def listProfessorsLabs(id):
 # Lista los estudiantes registrados en el sistema si el usuario es un profesor y se encuentra con sesión abierta
 # Si el usuario no es un profesor o no tiene sesión abierta debe retornar "error"
 def listStudents(id):
-    response=f"listStudents called by user {id}"        
+    if id not in ACTIVE_SESSIONS or ACTIVE_SESSIONS[id]["role"] != "professor":
+        response = "error"
+        print(response)
+        return response
+
+    students = []
+    try:
+        with open(usersFile, "r") as file:
+            for line in file:
+                user = loads(line)
+                if user["role"] == "student":
+                    students.append({"id": user["id"], "name": user["name"]})
+    except FileNotFoundError:
+        pass
+
+    response = dumps(students)
     print(response)
     return response
-
 # Función para asignar una práctica de laboratorio a un estudiante
 # Asigna una práctica de laboratorio a un estudiante si el usuario es un profesor y se encuentra con sesión abierta
 # Si el usuario no es un profesor o no tiene sesión abierta o el estudiante no existe o la práctica no existe debe retornar "error"
