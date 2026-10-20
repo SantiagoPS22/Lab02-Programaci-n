@@ -114,7 +114,11 @@ class RequestHandler(BaseHTTPRequestHandler):
                 params_dict=parse_qs(post_body.decode(), strict_parsing=True)
                 response=virtuallab_functions.assignLab(params_dict['id'][0],params_dict['lab_name'][0],params_dict['student_id'][0])
 
-
+            case "/create_lab":
+                content_len = int(self.headers.get('Content-Length'))
+                post_body = self.rfile.read(content_len)
+                params_dict=parse_qs(post_body.decode(), strict_parsing=True)
+                response=virtuallab_functions.create_lab(params_dict['name'][0],params_dict['id'][0],params_dict['role'][0],params_dict['password'][0])
 
 
         

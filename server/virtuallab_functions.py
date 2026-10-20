@@ -8,24 +8,25 @@ from json import dumps # Convertir diccionario a JSON
 from json import loads # Convertir JSON a diccionario
 ACTIVE_SESSIONS = {}
 usersFile = "server/users.txt"
+labsFile = "server/labs.txt"
 
 def writeUserDataToFile(user_data):
     with open(usersFile, "a") as file:
         file.write(dumps(user_data) + "\n")
 
+def writeLabsDataToFile(lab_data):
+    with open(labsFile, "a") as file:
+        file.write(dumps(lab_data) + "\n")
+
 # Función para registrar un usuario con nombre name, identificador id, rol role y contraseña password.
 # Registra el usuario en el sistema si el id del usuario no existe previamente. Si el usuario se pudo registrar debe retornar "User {name} with role {role} registered" de lo contrario
 # debe retornar "User already registered"
 def registerUser(name,id,role,password):
-    
     try:
         file=open(usersFile, "r")        
-
     except FileNotFoundError:
         #Archivo no existe
-        print("File not found, creating a new one.")
-         
-                      
+        print("File not found, creating a new one.")             
     else:
         with file:
             lines=file.readlines()
@@ -35,9 +36,6 @@ def registerUser(name,id,role,password):
                     response="User already registered"
                     print(response)
                     return response
-
-    
-    #######################################
     user_data = {
         "name": name,
         "id": id,
@@ -50,12 +48,6 @@ def registerUser(name,id,role,password):
     print(response)
     return response
             
-
-
-
-
-            
-
 # Función que abre una sesión
 # Abre una sesión del usuario 
 # lo hace si el id del usuario y la contraseña son correctos
@@ -177,16 +169,87 @@ def listStudents(id):
 # Función para asignar una práctica de laboratorio a un estudiante
 # Asigna una práctica de laboratorio a un estudiante si el usuario es un profesor y se encuentra con sesión abierta
 # Si el usuario no es un profesor o no tiene sesión abierta o el estudiante no existe o la práctica no existe debe retornar "error"
-def assignLab(id,lab_name,student_id):
-    response=f"assignLab called by user {id} to assign lab {lab_name} to student {student_id}"        
+def assign_lab(id, lab_name, student_id):
+    # 1. Validate session and role BEFORE touching the file system
+    if id not in ACTIVE_SESSIONS:
+        return "Error: User session is not active"
+
+    if ACTIVE_SESSIONS[id]["role"] != "professor":
+        return "Error: Permission denied. Professor role required"
+
+    labs = []
+    found = False
+
+    # 2. Read existing data
+    try:
+        with open(labsFile, "r") as file:
+            for line in file:
+                if not line.strip():
+                    continue
+                
+                lab = loads(line)
+                
+                # Check if this is the target lab
+                if lab["id"] == lab_name:
+                    found = True
+                    # Initialize students list if it doesn't exist
+                    if "students" not in lab:
+                        lab["students"] = []
+                    if student_id in lab["students"]:
+                        response = f"Student {student_id} is already enrolled in lab {lab_name}"
+                        print(response)
+                        return response
+                
+                    # Add student if not already enrolled
+                    lab["students"].append(student_id)
+                    
+                labs.append(lab)
+
+    except FileNotFoundError:
+        print("Labs file not found.")
+        return "Error: File not found"
+
+    if not found:
+        print("Lab does not exist.")
+        return "Error: Lab not found"
+
+    # 3. Overwrite file with updated memory data
+    with open(labsFile, "w") as file:
+        for lab in labs:
+            file.write(dumps(lab) + "\n")
+
+    response = f"Professor {id} successfully assigned lab {lab_name} to student {student_id}"
+    print(response)
+    return response
+     
+# Función para crear el 
+def create_lab(id,name_lab):
+    try:
+        file=open(labsFile, "r")     
+    except FileNotFoundError:
+            #Archivo no existe
+            print("File not found, creating a new one.")             
+    else:
+        with file:
+            lines=file.readlines()
+            for line in lines:
+                lab=loads(line)
+                if lab["id"]==id:
+                    response="Lab already registered"
+                    print(response)
+                    return response
+        lab_data = {
+            "name": name_lab,
+            "id": id,
+            "students":[]
+        }
+    
+    writeLabsDataToFile(lab_data)
+    response=f"Lab {name_lab} with id {id} registered"
     print(response)
     return response
     
-   
-    
-
-                
-                
+           
             
         
     

@@ -44,7 +44,8 @@ print(virtuallab_client.listStudents(url,id_professor))
 # # Cierra sesión con usuario
 print(virtuallab_client.closeSession(url,id_professor))
 
-
+# # Crear Laboratorio
+print(virtuallab_client.createLab(url,id = 1,lab_name="Laboratorio 1"))
 
 
 # # Inicia sesión con usuario
