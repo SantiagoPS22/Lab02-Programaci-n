@@ -36,7 +36,7 @@ print(virtuallab_client.openSession(url,id_professor,password_professor))
 # print(virtuallab_client.listProfessorsLabs(url,id_professor))
 
 # # Listar estudiantes registrados
-print(virtuallab_client.listStudents(url,id_professor))
+# print(virtuallab_client.listStudents(url,id_professor))
 
 # # Asignar práctica de laboratorio a un estudiante
 # print(virtuallab_client.assignLab(url,id_professor,"voltage_divider",id_student))
@@ -45,7 +45,7 @@ print(virtuallab_client.listStudents(url,id_professor))
 print(virtuallab_client.closeSession(url,id_professor))
 
 # # Crear Laboratorio
-print(virtuallab_client.createLab(url,id = 1,lab_name="Laboratorio 1"))
+# print(virtuallab_client.createLab(url,id = 1,lab_name="Laboratorio 1"))
 
 
 # # Inicia sesión con usuario
