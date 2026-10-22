@@ -1,2 +1,0 @@
-{"name": "Alexander", "id": "787878", "role": "professor", "password": "professor_pass", "session": false}
-{"name": "Helena", "id": "99999", "role": "student", "password": "student_pass", "session": "disable"}
