@@ -1,0 +1,9 @@
+* Voltage divider example circuit
+
+
+V1 Vin 0 9
+R1 Vin Vout 1k
+R2 Vout 0 2k
+
+
+.end

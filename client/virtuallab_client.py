@@ -8,6 +8,10 @@ def registerUser(url,name,id,role,password):
     response=requests.post(url+'/register',data=f'name={name}&id={id}&role={role}&password={password}')
     return response.content.decode('utf-8')
 
+def createLab (url,id,lab_name):
+    response=requests.post(url+'/create_lab',data=f'id={id}&lab_name={lab_name}')
+    return response.content.decode('utf-8')
+
 # Funciónn para abrir una sesión
 def openSession(url,id,password):    
     response=requests.post(url+'/login',data=f'id={id}&password={password}')
