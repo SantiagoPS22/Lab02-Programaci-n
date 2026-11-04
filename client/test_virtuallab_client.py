@@ -1,90 +1,139 @@
-import virtuallab_client
+import os
 import zipfile
-from PySpice.Unit import *
+import virtuallab_client
 from PySpice.Spice.Parser import SpiceParser
+from PySpice.Unit import *
 
-url="http://localhost"
+url = "http://localhost:80"
 
-# Registra un usuario profesor
-name="Alexander"
-id_professor=787878
-role="professor"
-password_professor="professor_pass"
+print("==================================================")
+print(" 1. REGISTRO DE USUARIOS (Profesores y Estudiantes)")
+print("==================================================")
 
-print(virtuallab_client.registerUser(url,name,id_professor,role,password_professor))
+# Profesores
+prof_1 = {"name": "Alexander", "id": 787878, "role": "professor", "pass": "professor_pass"}
+prof_2 = {"name": "Maria", "id": 101010, "role": "professor", "pass": "maria_pass"}
 
+# Estudiantes
+stud_1 = {"name": "Helena", "id": 99999, "role": "student", "pass": "student_pass"}
+stud_2 = {"name": "Carlos", "id": 88888, "role": "student", "pass": "carlos_pass"}
+stud_3 = {"name": "Ana", "id": 77777, "role": "student", "pass": "ana_pass"}
 
-# Registra un usuario estudiante
-name="Helena"
-id_student=99999
-role="student"
-password_student="student_pass"
+print("Registrando Profesor 1:", virtuallab_client.registerUser(url, prof_1["name"], prof_1["id"], prof_1["role"], prof_1["pass"]))
+print("Registrando Profesor 2:", virtuallab_client.registerUser(url, prof_2["name"], prof_2["id"], prof_2["role"], prof_2["pass"]))
 
-print(virtuallab_client.registerUser(url,name,id_student,role,password_student))
+print("Registrando Estudiante 1:", virtuallab_client.registerUser(url, stud_1["name"], stud_1["id"], stud_1["role"], stud_1["pass"]))
+print("Registrando Estudiante 2:", virtuallab_client.registerUser(url, stud_2["name"], stud_2["id"], stud_2["role"], stud_2["pass"]))
+print("Registrando Estudiante 3:", virtuallab_client.registerUser(url, stud_3["name"], stud_3["id"], stud_3["role"], stud_3["pass"]))
 
-
-
-# Inicia sesión con profesor
-name="Alexander"
-print(virtuallab_client.openSession(url,id_professor,password_professor))
-
-# # Carga laboratorio
-# file_path="client/rc.zip"
-# print(virtuallab_client.uploadLab(url,id_professor,file_path))
-
-# # Listar laboratorios disponibles para el usuario profesor
-# print(virtuallab_client.listProfessorsLabs(url,id_professor))
-
-# # Listar estudiantes registrados
-# print(virtuallab_client.listStudents(url,id_professor))
-
-# # Asignar práctica de laboratorio a un estudiante
-# print(virtuallab_client.assignLab(url,id_professor,"voltage_divider",id_student))
-
-# # Cierra sesión con usuario
-print(virtuallab_client.closeSession(url,id_professor))
-
-# # Crear Laboratorio
-# print(virtuallab_client.createLab(url,id = 1,lab_name="Laboratorio 1"))
+# Prueba de duplicado
+print("Prueba usuario duplicado:", virtuallab_client.registerUser(url, prof_1["name"], prof_1["id"], prof_1["role"], prof_1["pass"]))
 
 
-# # Inicia sesión con usuario
-# print(virtuallab_client.openSession(url,id_student,password_student))
+print("\n==================================================")
+print(" 2. AUTENTICACIÓN Y SESIONES")
+print("==================================================")
+
+# Intento fallido de login
+print("Login contraseña errónea:", virtuallab_client.openSession(url, prof_1["id"], "wrong_pass"))
+
+# Login exitoso
+print("Login Profesor Alexander:", virtuallab_client.openSession(url, prof_1["id"], prof_1["pass"]))
 
 
-# # Listar laboratorios disponibles para el usuario estudiante
-# print(virtuallab_client.listStudentLabs(url,id_student))
+print("\n==================================================")
+print(" 3. OPERACIONES DE PROFESOR")
+print("==================================================")
 
-# # Descarga laboratorio
-# lab_name="voltage_divider"
-# file_name=lab_name+".zip"
-# print(virtuallab_client.downloadLab(url,id_student,file_name))
+# Cargar prácticas de laboratorio (Archivos .zip)
+file_rc = "client/rc.zip"
+file_voltage = "client/voltage_divider.zip"
 
-
-# # Abre el archivo zip y lee el contenido del archivo .cir
-# with zipfile.ZipFile(f"client/labs/{file_name}", "r") as zip_ref:    
-#     with zip_ref.open(lab_name+".cir") as file:        
-#         netlist = file.read().decode("utf-8")
-#         print("Starting simulation for lab:", lab_name)
-#         # Crea un objeto SpiceParser a partir del contenido del archivo .cir
-#         parser = SpiceParser(source=netlist)
-#         # Crea el circuito a partir del parser
-#         circuit = parser.build_circuit()
-#         # Crea una instancia del simulador para ejecutar el análisis
-#         simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-#         # Ejecuta la simulación (punto de operación)
-#         analysis = simulator.operating_point()
-#         # Imprime los voltajes de los nodos
-#         for node in analysis.nodes.values():
-#             print(f'Node {node}: {float(node[0]):.4f} V')
-#         print("Simulation completed for lab:", lab_name)
-
-        
-
-# # Cierra sesión con usuario
-# print(virtuallab_client.closeSession(url,id_student))
+print("Cargando RC Lab:", virtuallab_client.uploadLab(url, prof_1["id"], file_rc))
+print("Cargando Voltage Divider Lab:", virtuallab_client.uploadLab(url, prof_1["id"], file_voltage))
 
 
+# Consultar datos como Profesor
+print("\nListar laboratorios cargados:", virtuallab_client.listProfessorsLabs(url, prof_1["id"]))
+print("Listar estudiantes registrados:", virtuallab_client.listStudents(url, prof_1["id"]))
+
+# Asignar prácticas a estudiantes
+print("\nAsignando 'voltage_divider' a Helena:", virtuallab_client.assignLab(url, prof_1["id"], "voltage_divider", stud_1["id"]))
+print("Asignando 'rc' a Helena:", virtuallab_client.assignLab(url, prof_1["id"], "rc", stud_1["id"]))
+print("Asignando 'voltage_divider' a Carlos:", virtuallab_client.assignLab(url, prof_1["id"], "voltage_divider", stud_2["id"]))
+
+# Re-asignación duplicada (Debe controlar error o aviso)
+print("Asignación duplicada a Helena:", virtuallab_client.assignLab(url, prof_1["id"], "voltage_divider", stud_1["id"]))
+
+# Cierre de sesión del Profesor
+print("\nCerrar sesión Profesor Alexander:", virtuallab_client.closeSession(url, prof_1["id"]))
 
 
+print("\n==================================================")
+print(" 4. OPERACIONES DE ESTUDIANTE")
+print("==================================================")
 
+# Intento de descarga sin sesión activa (Debe fallar)
+print("Descargar sin sesión (Helena):", virtuallab_client.downloadLab(url, stud_1["id"], "voltage_divider.zip"))
+
+# Login Estudiante 1 (Helena)
+print("Login Estudiante Helena:", virtuallab_client.openSession(url, stud_1["id"], stud_1["pass"]))
+
+# Consultar laboratorios asignados
+print("Laboratorios asignados a Helena:", virtuallab_client.listStudentLabs(url, stud_1["id"]))
+
+# Descargar laboratorio asignado
+lab_name = "voltage_divider"
+file_name = f"{lab_name}.zip"
+
+print(f"Descargando {file_name}:", virtuallab_client.downloadLab(url, stud_1["id"], file_name))
+
+
+print("\n==================================================")
+print(" 5. EJECUCIÓN Y SIMULACIÓN SPICE")
+print("==================================================")
+
+zip_path = f"client/labs/{file_name}"
+
+if os.path.exists(zip_path):
+    try:
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            with zip_ref.open(f"{lab_name}.cir") as file:
+                netlist = file.read().decode("utf-8")
+                print("Iniciando simulación SPICE para:", lab_name)
+                
+                parser = SpiceParser(source=netlist)
+                circuit = parser.build_circuit()
+                simulator = circuit.simulator(temperature=25, nominal_temperature=25)
+                analysis = simulator.operating_point()
+
+                for node in analysis.nodes.values():
+                    print(f' Nodo {node}: {float(node[0]):.4f} V')
+                
+                print("Simulación completada con éxito.")
+    except Exception as e:
+        print(f"Error procesando simulación SPICE: {e}")
+else:
+    print(f"No se encontró el archivo {zip_path} para la simulación.")
+
+# Cierre de sesión de Helena
+print("Cerrar sesión Helena:", virtuallab_client.closeSession(url, stud_1["id"]))
+
+
+print("\n==================================================")
+print(" 6. VERIFICACIÓN DE OTROS ESTUDIANTES")
+print("==================================================")
+
+# Carlos (Tiene 1 laboratorio)
+print("Login Carlos:", virtuallab_client.openSession(url, stud_2["id"], stud_2["pass"]))
+print("Labs de Carlos:", virtuallab_client.listStudentLabs(url, stud_2["id"]))
+print("Cerrar sesión Carlos:", virtuallab_client.closeSession(url, stud_2["id"]))
+
+# Ana (No tiene laboratorios)
+print("Login Ana:", virtuallab_client.openSession(url, stud_3["id"], stud_3["pass"]))
+print("Labs de Ana (sin asignaciones):", virtuallab_client.listStudentLabs(url, stud_3["id"]))
+print("Cerrar sesión Ana:", virtuallab_client.closeSession(url, stud_3["id"]))
+
+print("\n==================================================")
+print(" PRUEBAS FINALIZADAS")
+print("==================================================")
