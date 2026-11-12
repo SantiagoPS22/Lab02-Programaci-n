@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>VirtualLab</title>
+</head>
+<body>
+  <h1>VirtualLab</h1>
+
+  <h2>Iniciar sesión</h2>
+  <input id="id" placeholder="ID"><br>
+  <input id="password" type="password" placeholder="Contraseña"><br>
+  <button onclick="login()">Iniciar sesión</button>
+
+  <h2>Registrar</h2>
+  <input id="name" placeholder="Nombre"><br>
+  <select id="role">
+    <option value="student">Estudiante</option>
+    <option value="professor">Profesor</option>
+  </select><br>
+  <button onclick="registrar()">Registrar</button>
+
+  <p id="resultado"></p>
+  <div id="panelProfesor" style="display:none">
+  <h2>Panel de profesor</h2>
+  <input type="file" id="archivo">
+  <button onclick="subirLab()">Subir laboratorio</button><br>
+  <button onclick="llamar('list_professors_labs')">Mis laboratorios</button>
+  <button onclick="llamar('list_students')">Ver estudiantes</button><br>
+  <input id="labName" placeholder="Nombre del lab (sin .zip)">
+  <input id="studentId" placeholder="ID del estudiante">
+  <button onclick="asignarLab()">Asignar</button>
+</div>
+
+<div id="panelEstudiante" style="display:none">
+  <h2>Panel de estudiante</h2>
+  <button onclick="llamar('list_student_labs')">Mis laboratorios</button><br>
+  <input id="fileName" placeholder="Archivo (ej: lab.zip)">
+  <button onclick="descargarLab()">Descargar</button>
+</div>
+
+<button id="btnLogout" style="display:none" onclick="logout()">Cerrar sesión</button>
+<pre id="salida"></pre>
+
+  <script>
+   const URL = "/api";
+      let idActual = null;
+    async function login() {
+      const id = document.getElementById("id").value;
+      const password = document.getElementById("password").value;
+      const resp = await fetch(URL + "/login", {
+        method: "POST",
+        body: `id=${id}&password=${password}`
+      });
+     const texto = await resp.text();
+document.getElementById("resultado").innerText = texto;
+if (texto.includes("opened")) {
+  idActual = id;
+  const rol = document.getElementById("role").value;
+  document.getElementById(rol === "professor" ? "panelProfesor" : "panelEstudiante").style.display = "block";
+  document.getElementById("btnLogout").style.display = "block";
+}
+    }
+
+    async function registrar() {
+      const id = document.getElementById("id").value;
+      const password = document.getElementById("password").value;
+      const name = document.getElementById("name").value;
+      const role = document.getElementById("role").value;
+      const resp = await fetch(URL + "/register", {
+        method: "POST",
+        body: `name=${name}&id=${id}&role=${role}&password=${password}`
+      });
+      document.getElementById("resultado").innerText = await resp.text();
+    }
+      async function llamar(ruta) {
+    const resp = await fetch(URL + "/" + ruta, { method: "POST", body: `id=${idActual}` });
+    document.getElementById("salida").innerText = await resp.text();
+  }
+
+  async function subirLab() {
+    const archivo = document.getElementById("archivo").files[0];
+    const resp = await fetch(URL + "/upload_lab", {
+      method: "POST",
+      headers: { "X-File-Name": archivo.name, "X-Client-ID": idActual },
+      body: archivo
+    });
+    document.getElementById("salida").innerText = await resp.text();
+  }
+
+  async function asignarLab() {
+    const lab = document.getElementById("labName").value;
+    const est = document.getElementById("studentId").value;
+    const resp = await fetch(URL + "/assign_lab", {
+      method: "POST",
+      body: `id=${idActual}&lab_name=${lab}&student_id=${est}`
+    });
+    document.getElementById("salida").innerText = await resp.text();
+  }
+
+  async function descargarLab() {
+    const nombre = document.getElementById("fileName").value;
+    const resp = await fetch(URL + "/download_lab", {
+      method: "POST",
+      headers: { "X-File-Name": nombre, "X-Client-ID": idActual }
+    });
+    const blob = await resp.blob();
+    const enlace = document.createElement("a");
+    enlace.href = window.URL.createObjectURL(blob);
+    enlace.download = nombre;
+    enlace.click();
+  }
+
+  async function logout() {
+    const resp = await fetch(URL + "/logout", { method: "POST", body: `id=${idActual}` });
+    document.getElementById("resultado").innerText = await resp.text();
+    document.getElementById("panelProfesor").style.display = "none";
+    document.getElementById("panelEstudiante").style.display = "none";
+    document.getElementById("btnLogout").style.display = "none";
+    document.getElementById("salida").innerText = "";
+    idActual = null;
+  }
+  </script>
+</body>
+</html>
