@@ -1,0 +1,9 @@
+{"name": "eric", "id": "12345", "role": "student", "password": "Yericforever", "session": true}
+{"name": "pepe", "id": "5555", "role": "student", "password": "12345", "session": true}
+{"name": "alex", "id": "7777", "role": "professor", "password": "pepe", "session": false}
+{"name": "pedro", "id": "8888", "role": "professor", "password": "1111", "session": false}
+{"name": "estatu2", "id": "9999", "role": "student", "password": "2222", "session": true}
+{"name": "eric", "id": "123", "role": "Estudiante", "password": "123", "session": true}
+{"name": "santiago", "id": "456", "role": "Profesor", "password": "456", "session": true}
+{"name": "eric", "id": "222", "role": "Profesor", "password": "222", "session": true}
+{"name": "pablo", "id": "1111", "role": "Estudiante", "password": "123", "session": true}
